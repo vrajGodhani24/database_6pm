@@ -40,6 +40,19 @@ class DBHelper {
     });
   }
 
+  Future<List<Map<String, dynamic>>> fetchSingleStudentData(int grid) async {
+    database = await initDB();
+
+    String sql = 'SELECT * FROM Student WHERE grid=?';
+
+    List args = [grid];
+
+    List<Map<String, dynamic>> fetchSingleData =
+        await database!.rawQuery(sql, args);
+
+    return fetchSingleData;
+  }
+
   Future<List<Student>> fetchStudentData() async {
     database = await initDB();
 
@@ -71,5 +84,16 @@ class DBHelper {
           backgroundColor: Colors.red.shade200.withOpacity(0.5),
           snackPosition: SnackPosition.BOTTOM);
     });
+  }
+
+  Future<void> updateStudentData(
+      int grid, String name, String contact, int age) async {
+    database = await initDB();
+
+    String sql = 'UPDATE Student SET name=?,contact=?,age=? WHERE grid=?';
+
+    List args = [name, contact, age, grid];
+
+    await database!.rawUpdate(sql, args);
   }
 }

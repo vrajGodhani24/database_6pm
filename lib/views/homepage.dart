@@ -14,6 +14,10 @@ class HomePage extends StatelessWidget {
     String contact = '';
     int age = 0;
 
+    String updateName = '';
+    String updateContact = '';
+    int updateAge = 0;
+
     StudentController studentController = Get.put(StudentController());
 
     return Scaffold(
@@ -30,17 +34,113 @@ class HomePage extends StatelessWidget {
                   (e) => Card(
                     elevation: 5,
                     child: ListTile(
-                      leading: Text("${e.grid}"),
+                      leading: CircleAvatar(
+                          backgroundColor: Colors.white,
+                          child: Text(
+                            "${e.grid}",
+                            style: const TextStyle(color: Colors.black),
+                          )),
                       title: Text(e.name),
                       subtitle: Text(e.contact),
                       trailing: IconButton(
                         onPressed: () async {
-                          await DBHelper.dbHelper.deleteStudentData(e.grid);
+                          // List<Map<String, dynamic>> data = await DBHelper
+                          //     .dbHelper
+                          //     .fetchSingleStudentData(e.grid);
+
+                          showModalBottomSheet(
+                              context: context,
+                              builder: (context) {
+                                return Container(
+                                  height: 400,
+                                  padding: const EdgeInsets.all(25),
+                                  width: double.infinity,
+                                  color: Colors.white,
+                                  child: Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      TextField(
+                                        onChanged: (val) {
+                                          updateName = val;
+                                        },
+                                        decoration: InputDecoration(
+                                          border: const OutlineInputBorder(),
+                                          hintText: e.name,
+                                        ),
+                                      ),
+                                      TextField(
+                                        onChanged: (val) {
+                                          updateContact = val;
+                                        },
+                                        decoration: InputDecoration(
+                                          border: const OutlineInputBorder(),
+                                          hintText: e.contact,
+                                        ),
+                                      ),
+                                      TextField(
+                                        onChanged: (val) {
+                                          updateAge = int.parse(val);
+                                        },
+                                        decoration: InputDecoration(
+                                          border: const OutlineInputBorder(),
+                                          hintText: '${e.age}',
+                                        ),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          OutlinedButton(
+                                            onPressed: () {
+                                              Get.back();
+                                            },
+                                            child: const Text('Cancel'),
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () async {
+                                              if (updateContact == '' &&
+                                                  updateAge == 0) {
+                                                await DBHelper.dbHelper
+                                                    .updateStudentData(
+                                                        e.grid,
+                                                        updateName,
+                                                        e.contact,
+                                                        e.age);
+                                              } else if (updateName == '' &&
+                                                  updateAge == 0) {
+                                                await DBHelper.dbHelper
+                                                    .updateStudentData(
+                                                        e.grid,
+                                                        e.name,
+                                                        updateContact,
+                                                        e.age);
+                                              } else {
+                                                await DBHelper.dbHelper
+                                                    .updateStudentData(
+                                                        e.grid,
+                                                        e.name,
+                                                        e.contact,
+                                                        updateAge);
+                                              }
+                                              studentController.onInit();
+                                              Get.back();
+                                            },
+                                            child: const Text('Done'),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              });
+
                           studentController.onInit();
                         },
                         icon: const Icon(
-                          Icons.delete,
-                          color: Colors.red,
+                          Icons.edit,
+                          color: Colors.blue,
                         ),
                       ),
                     ),
